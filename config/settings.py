@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'common.apps.CommonConfig',
+    'shopping.apps.ShoppingConfig',
     'rest_framework',
     'allauth',
     'allauth.account',
@@ -135,6 +136,7 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'shopping.auth.JSONWebTokenAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
 }
@@ -171,4 +173,9 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 }
 
 AUTH_USER_MODEL = 'common.User'
+
+AUTHENTICATION_BACKENDS = [
+    'shopping.auth.StoreBackend',
+    'django.contrib.auth.backends.ModelBackend'
+]
 
