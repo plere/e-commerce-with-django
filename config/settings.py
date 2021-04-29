@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'common.apps.CommonConfig',
     'rest_framework',
     'allauth',
     'allauth.account',
@@ -162,3 +163,12 @@ JWT_AUTH = {
 }
 
 REST_USE_JWT = True
+
+ACCOUNT_ADAPTER = 'common.adapter.CustomAccountAdapter'
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+        'REGISTER_SERIALIZER': 'common.serializers.CustomRegisterSerializer',
+}
+
+AUTH_USER_MODEL = 'common.User'
+
