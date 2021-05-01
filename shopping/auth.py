@@ -7,6 +7,7 @@ from rest_framework import exceptions
 
 from shopping.models import Store
 
+
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 
 
@@ -53,6 +54,8 @@ class JSONWebTokenAuthentication(BaseAuthentication):
             raise exceptions.AuthenticationFailed()
 
         store = self.authenticate_credentials(payload)
+        if not store:
+            return None
 
         return (store, jwt_value)
 
@@ -63,8 +66,7 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         storename = payload.get('store_name')
 
         if not storename:
-            msg = _('Invalid payload.')
-            raise exceptions.AuthenticationFailed(msg)
+            return None
 
         try:
             store = Store.objects.get(store_name=storename)
@@ -85,9 +87,6 @@ class StoreBackend(object):
         except Store.DoesNotExist:
             return None
         return None
-
-
-
 
 
 def storePayloadHandler(store):
