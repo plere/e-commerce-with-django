@@ -5,6 +5,7 @@ from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
 
 from common.models import User
+from common.permissions import IsUser
 from common.serializers import CustomRegisterSerializer, UserSerializer, UserLoginSerializer
 
 
@@ -44,9 +45,11 @@ class Login(generics.GenericAPIView):
         })
 
 
+@permission_classes([IsAuthenticated, IsUser])
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'username'
-    permission_classes = [IsAuthenticated]
+
+
 
