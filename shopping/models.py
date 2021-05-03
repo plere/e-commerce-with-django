@@ -15,3 +15,11 @@ class Store(models.Model):
         """
         return True
 
+
+class Item(models.Model):
+    item_name = models.CharField(max_length = 255)
+    stock_count = models.PositiveIntegerField()
+    item_order_count = models.PositiveIntegerField(default = 0)
+    item_price = models.PositiveIntegerField()
+    item_description = models.TextField(blank = True, null = True)
+    store = models.ForeignKey(Store, on_delete = models.CASCADE)

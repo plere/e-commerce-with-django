@@ -1,12 +1,13 @@
 # Create your views here.
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import permission_classes, action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework import viewsets
 
-from shopping.models import Store
-from shopping.serializers import StoreSerializer, StoreLoginSerializer
+from shopping.models import Store, Item
+from shopping.permissions import IsOwnerStore, IsStore
+from shopping.serializers import StoreSerializer, StoreLoginSerializer, ItemSerializer
 
 
 class StoreViewSet(viewsets.ModelViewSet):
@@ -18,9 +19,8 @@ class StoreViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             permission_classes = [AllowAny]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [IsAuthenticated, IsStore]
         return [permission() for permission in permission_classes]
-
 
 
 @permission_classes([AllowAny])
@@ -41,3 +41,14 @@ class Login(generics.GenericAPIView):
             'store': StoreSerializer(store, context=self.get_serializer_context()).data,
             'token': store['token']
         })
+
+
+@permission_classes([IsAuthenticated, IsStore, IsOwnerStore])
+class ItemViewSet(viewsets.ModelViewSet):
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(store=self.request.user)
+
+

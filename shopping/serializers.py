@@ -3,18 +3,18 @@ from rest_framework import serializers
 from rest_framework_jwt.settings import api_settings
 
 from shopping.auth import storePayloadHandler
-from shopping.models import Store
-
+from shopping.models import Store, Item
 
 JWT_ENCODE_HANDLER = api_settings.JWT_ENCODE_HANDLER
 
 
 class StoreSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length = 128, write_only=True)
+    item_set = serializers.StringRelatedField(many = True)
 
     class Meta:
         model = Store
-        fields = ['store_name', 'password', 'description']
+        fields = ['store_name', 'password', 'description', 'item_set']
 
 
 class StoreLoginSerializer(serializers.Serializer):
@@ -41,3 +41,11 @@ class StoreLoginSerializer(serializers.Serializer):
             'store_name': store.store_name,
             'token': jwt_token
         }
+
+
+class ItemSerializer(serializers.ModelSerializer):
+    item_order_count = serializers.IntegerField(read_only = True)
+
+    class Meta:
+        model = Item
+        fields = ['item_name', 'stock_count', 'item_order_count', 'item_price', 'item_description']
