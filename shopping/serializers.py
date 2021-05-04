@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_jwt.settings import api_settings
 
 from shopping.auth import storePayloadHandler
-from shopping.models import Store, Item
+from shopping.models import Store, Item, Order
 
 JWT_ENCODE_HANDLER = api_settings.JWT_ENCODE_HANDLER
 
@@ -49,3 +49,11 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = ['item_name', 'stock_count', 'item_order_count', 'item_price', 'item_description']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['user_id', 'item_id', 'order_count', 'order_date', 'shipping_status']
+
+

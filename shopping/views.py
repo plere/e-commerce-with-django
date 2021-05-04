@@ -1,13 +1,17 @@
 # Create your views here.
-from rest_framework.decorators import permission_classes, action
+from django.db import transaction
+from rest_framework.decorators import permission_classes
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework import viewsets
 
-from shopping.models import Store, Item
+from common.models import User
+from common.permissions import IsUser
+from shopping.models import Store, Item, Order
 from shopping.permissions import IsOwnerStore, IsStore
-from shopping.serializers import StoreSerializer, StoreLoginSerializer, ItemSerializer
+from shopping.serializers import StoreSerializer, StoreLoginSerializer, ItemSerializer, OrderSerializer
 
 
 class StoreViewSet(viewsets.ModelViewSet):
@@ -51,4 +55,26 @@ class ItemViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(store=self.request.user)
 
+
+@permission_classes([IsAuthenticated, IsUser])
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        user = get_object_or_404(User, username = request.user)
+        item = get_object_or_404(Item, pk = kwargs['pk'])
+
+        if int(request.data.get('order_count')) > item.stock_count - item.item_order_count or int(request.data.get('order_count')) <= 0:
+            return Response({"message": 'check order count'}, status = status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.get_serializer(data = request.data)
+        serializer.is_valid(raise_exception = True)
+        serializer.save(user=user, item=item)
+
+        item.item_order_count += int(request.data.get('order_count'))
+        item.save()
+
+        return Response(serializer.data)
 

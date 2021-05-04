@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import StoreViewSet, ItemViewSet
+from .views import StoreViewSet, ItemViewSet, OrderViewSet
 
 store_list = StoreViewSet.as_view({
     'post': 'create',
@@ -21,7 +21,10 @@ item_list = ItemViewSet.as_view({
 item_detail = ItemViewSet.as_view({
     'get': 'retrieve',
     'delete': 'destroy'
+})
 
+order_list = OrderViewSet.as_view({
+    'post': 'create',
 })
 
 urlpatterns = [
@@ -30,5 +33,5 @@ urlpatterns = [
     path('login/', views.Login.as_view()),
     path('item', item_list),
     path('item/<int:pk>', item_detail),
-
+    path('item/<int:pk>/order', order_list),
 ]
